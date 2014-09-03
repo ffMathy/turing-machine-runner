@@ -47,6 +47,10 @@ namespace TuringMachineRunner
         {
             RunButton.IsEnabled = false;
 
+            ElapsedTime.Text = "0 s";
+            OperationsCount.Text = "0";
+            StatesCount.Text = "0";
+
             var program = InputProgram.Text;
             var input = Input.Text;
 
@@ -68,10 +72,14 @@ namespace TuringMachineRunner
 
             OutputGrid.Visibility = Visibility.Visible;
 
+            var startTime = DateTime.Now;
+
             var i = 0;
             var bufferEnd = 0;
+            var operationsCount = 0;
             while (i < _buffer.Length)
             {
+                operationsCount++;
 
                 if (i > _buffer.Length)
                 {
@@ -123,6 +131,9 @@ namespace TuringMachineRunner
 
                 Result.Text = new string(_buffer, 0, bufferEnd);
 
+                ElapsedTime.Text = (int)(DateTime.Now - startTime).TotalSeconds + " s";
+                OperationsCount.Text = operationsCount + "";
+
                 if (instruction.WriteSymbol != symbol)
                 {
                     await Task.Delay((int)Delay.Value);
@@ -139,10 +150,10 @@ namespace TuringMachineRunner
             Result.Text = string.Empty;
 
             var programLines = program.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            var stateCount = 0;
             foreach (var line in programLines.Where(l => !l.StartsWith("//")))
             {
                 var split = line.Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
-
                 if (split.Length == 5 && split[1].Length == 1 && split[3].Length == 1)
                 {
                     var currentState = split[0];
@@ -170,6 +181,8 @@ namespace TuringMachineRunner
 
                     if (!_states.ContainsKey(currentState))
                     {
+                        stateCount++;
+
                         if (_currentState == null)
                         {
                             _currentState = currentState;
@@ -191,6 +204,8 @@ namespace TuringMachineRunner
                     };
                 }
             }
+
+            StatesCount.Text = stateCount + "";
         }
     }
 }
